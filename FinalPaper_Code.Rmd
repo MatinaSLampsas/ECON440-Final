@@ -1,6 +1,6 @@
 ---
 title: "Impact of Hiring New H-1B Workers on Wages in the Health Care Sector"
-author: "Matina Lampsas & Constantine Golematis"
+author: "Matina Lampsas and Constantine Golematis"
 date: "`r Sys.Date()`"
 output: 
   html_document:
