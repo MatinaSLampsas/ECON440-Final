@@ -20,18 +20,7 @@ fontsize: 12pt
 geometry: a4paper
 ---
 
-```{r setup, include=FALSE}
 
-# Set global options to suppress warnings, messages, and errors
-knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, error = FALSE)
-
-# Custom hooks to ensure no warnings/messages appear
-knitr::knit_hooks$set(
-  warning = function(x, options) "",
-  message = function(x, options) ""
-)
-
-```
 
 ```{r setup, include=FALSE}
 library(tidyverse)
@@ -41,7 +30,7 @@ library(readxl)
 #Data Analysis Section: 
 ```{r}
 # Load the data
-data <- read_xlsx("h1bfirmdata (1).xlsx")
+data <- read_xlsx(here::here("data","h1bfirmdata (1).xlsx"))
 ```
 
 ```{r}
@@ -92,10 +81,10 @@ summary_table <- finance_data %>%
 # Display the table
 
 summary_table
-
-kable(summary_table, caption = "Summary Statistics for Key Variables") %>% 
-  kable_classic(full_width = FALSE, html_font = "Cambria") %>%
-  row_spec(0, bold = TRUE, background = "lightblue") 
+# 
+# kable(summary_table, caption = "Summary Statistics for Key Variables") %>% 
+#   kable_classic(full_width = FALSE, html_font = "Cambria") %>%
+#   row_spec(0, bold = TRUE, background = "lightblue") 
 ```
 # Old graphs
 ```{r}
