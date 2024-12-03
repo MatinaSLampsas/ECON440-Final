@@ -8,10 +8,9 @@ output:
     toc_float: true
     number_sections: true
     code_folding: hide
-  pdf_document:
-    toc: true
-  word_document:
-    toc: true
+    toc_depth: 2
+    theme: flatly
+    highlight: tango
 abstract: |
   This study investigates the likelihood of firms in the health care sector paying above-average wages 
   as a result of hiring new H-1B workers, using a Binary Logit Model. The analysis examines how hiring 
