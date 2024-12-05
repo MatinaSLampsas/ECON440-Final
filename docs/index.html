@@ -11,7 +11,7 @@
 
 <meta name="author" content="Matina Lampsas and Constantine Golematis" />
 
-<meta name="date" content="2024-12-02" />
+<meta name="date" content="2024-12-04" />
 
 <title>Impact of Hiring New H-1B Workers on Wages in the Health Care Sector</title>
 
@@ -1804,7 +1804,7 @@ border-radius: 0px;
 <h1 class="title toc-ignore">Impact of Hiring New H-1B Workers on Wages
 in the Health Care Sector</h1>
 <h4 class="author">Matina Lampsas and Constantine Golematis</h4>
-<h4 class="date">2024-12-02</h4>
+<h4 class="date">2024-12-04</h4>
 <div class="abstract">
 <p class="abstract">Abstract</p>
 <p>This study investigates the likelihood of firms in the health care
@@ -1830,49 +1830,142 @@ data &lt;- data %&gt;%
 # Filter for finance industry
 finance_data &lt;- data %&gt;%
   filter(industry_group == &quot;52&quot;,
-         DataYearFiscal != &quot;2021&quot;)</code></pre>
+         DataYearFiscal != &quot;2021&quot;) </code></pre>
 <pre class="r"><code>library(dplyr)
 library(knitr)</code></pre>
 <pre><code>## Warning: package &#39;knitr&#39; was built under R version 4.3.3</code></pre>
-<pre class="r"><code># Select variables of interest for the summary table
-summary_table &lt;- finance_data %&gt;%
-  summarize(
-    Median_A_MEAN = median(A_MEAN, na.rm = TRUE),
-    Mean_A_MEAN = mean(A_MEAN, na.rm = TRUE),
-    Max_A_MEAN = max(A_MEAN, na.rm = TRUE),
-    Min_A_MEAN = min(A_MEAN, na.rm = TRUE),
-    
-    Median_newh1bs = median(newh1bs, na.rm = TRUE),
-    Mean_newh1bs = mean(newh1bs, na.rm = TRUE),
-    Max_newh1bs = max(newh1bs, na.rm = TRUE),
-    Min_newh1bs = min(newh1bs, na.rm = TRUE),
-    
-    Median_AssetsTotal = median(AssetsTotal, na.rm = TRUE),
-    Mean_AssetsTotal = mean(AssetsTotal, na.rm = TRUE),
-    Max_AssetsTotal = max(AssetsTotal, na.rm = TRUE),
-    Min_AssetsTotal = min(AssetsTotal, na.rm = TRUE),
-    
-    Median_Employees = median(Employees, na.rm = TRUE),
-    Mean_Employees = mean(Employees, na.rm = TRUE),
-    Max_Employees = max(Employees, na.rm = TRUE),
-    Min_Employees = min(Employees, na.rm = TRUE)
-  )
+<pre class="r"><code>library(kableExtra)</code></pre>
+<pre><code>## Warning: package &#39;kableExtra&#39; was built under R version 4.3.3</code></pre>
+<pre><code>## 
+## Attaching package: &#39;kableExtra&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:dplyr&#39;:
+## 
+##     group_rows</code></pre>
+<pre class="r"><code>finance_data_table &lt;- finance_data %&gt;% 
+  select(A_MEAN, newh1bs, AssetsTotal)
 
-# Display the table
+# Calculate summary statistics and transpose the result
+summary_table &lt;- data.frame(
+  Median = sapply(finance_data_table, median, na.rm = TRUE),
+  Mean = sapply(finance_data_table, mean, na.rm = TRUE),
+  Max = sapply(finance_data_table, max, na.rm = TRUE),
+  Min = sapply(finance_data_table, min, na.rm = TRUE)
+)
 
-summary_table</code></pre>
-<pre><code>## # A tibble: 1 × 16
-##   Median_A_MEAN Mean_A_MEAN Max_A_MEAN Min_A_MEAN Median_newh1bs Mean_newh1bs
-##           &lt;dbl&gt;       &lt;dbl&gt;      &lt;dbl&gt;      &lt;dbl&gt;          &lt;dbl&gt;        &lt;dbl&gt;
-## 1         63820      70653.     116170      46480              0         7.06
-## # ℹ 10 more variables: Max_newh1bs &lt;dbl&gt;, Min_newh1bs &lt;dbl&gt;,
-## #   Median_AssetsTotal &lt;dbl&gt;, Mean_AssetsTotal &lt;dbl&gt;, Max_AssetsTotal &lt;dbl&gt;,
-## #   Min_AssetsTotal &lt;dbl&gt;, Median_Employees &lt;dbl&gt;, Mean_Employees &lt;dbl&gt;,
-## #   Max_Employees &lt;dbl&gt;, Min_Employees &lt;dbl&gt;</code></pre>
-<pre class="r"><code># 
-# kable(summary_table, caption = &quot;Summary Statistics for Key Variables&quot;) %&gt;% 
+# Transpose the summary table so that statistics are rows and variables are columns
+summary_table &lt;- t(summary_table)
+
+# Convert the transposed summary table to a data frame
+summary_table &lt;- as.data.frame(summary_table)
+
+# Add a row for the summary statistic labels
+summary_table$Statistic &lt;- rownames(summary_table)
+rownames(summary_table) &lt;- NULL
+
+# Reorder columns to put &quot;Statistic&quot; first
+summary_table &lt;- summary_table[, c(&quot;Statistic&quot;, names(finance_data_table))]
+
+# Print the summary table
+print(summary_table)</code></pre>
+<pre><code>##   Statistic    A_MEAN    newh1bs AssetsTotal
+## 1    Median  63820.00   0.000000    5918.109
+## 2      Mean  70652.98   7.061087  152417.321
+## 3       Max 116170.00 547.000000 3386071.000
+## 4       Min  46480.00   0.000000       0.000</code></pre>
+<pre class="r"><code># summary_table %&gt;%
+#   kable(&quot;html&quot;, caption = &quot;Summary Statistics for Selected Finance Data Variables&quot;, escape = FALSE) %&gt;%
 #   kable_classic(full_width = FALSE, html_font = &quot;Cambria&quot;) %&gt;%
-#   row_spec(0, bold = TRUE, background = &quot;lightblue&quot;) </code></pre>
+#   row_spec(0, bold = TRUE, background = &quot;lightblue&quot;, hline_after = TRUE) %&gt;% 
+#   row_spec(1:4, hline_after = TRUE)
+
+# Use kableExtra to create a nicely formatted HTML or LaTeX table with a shorter caption
+summary_table %&gt;%
+  mutate(Statistic = ifelse(Statistic %in% c(&quot;Median&quot;, &quot;Mean&quot;, &quot;Max&quot;, &quot;Min&quot;), 
+                            paste0(&quot;&lt;b&gt;&quot;, Statistic, &quot;&lt;/b&gt;&quot;), 
+                            Statistic)) %&gt;%  # Bold the Statistic labels using LaTeX or HTML syntax
+  kable(&quot;html&quot;, caption = &quot;Summary Stats for Variables in Model&quot;, escape = FALSE) %&gt;%
+  kable_classic(full_width = FALSE, html_font = &quot;Cambria&quot;) %&gt;%
+  row_spec(0, bold = TRUE, background = &quot;lightblue&quot;) %&gt;%  # Format the header row
+  row_spec(1:nrow(summary_table), hline_after = TRUE)      </code></pre>
+<table class=" lightable-classic" style="font-family: Cambria; width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary Stats for Variables in Model
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;font-weight: bold;background-color: lightblue !important;">
+Statistic
+</th>
+<th style="text-align:right;font-weight: bold;background-color: lightblue !important;">
+A_MEAN
+</th>
+<th style="text-align:right;font-weight: bold;background-color: lightblue !important;">
+newh1bs
+</th>
+<th style="text-align:right;font-weight: bold;background-color: lightblue !important;">
+AssetsTotal
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<b>Median</b>
+</td>
+<td style="text-align:right;">
+63820.00
+</td>
+<td style="text-align:right;">
+0.000000
+</td>
+<td style="text-align:right;">
+5918.109
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<b>Mean</b>
+</td>
+<td style="text-align:right;">
+70652.98
+</td>
+<td style="text-align:right;">
+7.061087
+</td>
+<td style="text-align:right;">
+152417.321
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<b>Max</b>
+</td>
+<td style="text-align:right;">
+116170.00
+</td>
+<td style="text-align:right;">
+547.000000
+</td>
+<td style="text-align:right;">
+3386071.000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<b>Min</b>
+</td>
+<td style="text-align:right;">
+46480.00
+</td>
+<td style="text-align:right;">
+0.000000
+</td>
+<td style="text-align:right;">
+0.000
+</td>
+</tr>
+</tbody>
+</table>
 <div id="old-graphs" class="section level1" number="1">
 <h1><span class="header-section-number">1</span> Old graphs</h1>
 <pre class="r"><code># Barplot: Proportion of high-wage firms over time
@@ -2032,7 +2125,7 @@ summary_1</code></pre>
 #   row_spec(0, bold = TRUE, background = &quot;lightblue&quot;) </code></pre>
 <pre class="r"><code># Create a new dataset with `new_h1b` increased by 1
 new_data_asset &lt;- finance_data_clean %&gt;% 
-  mutate(newh1bs = AssetsTotal + 100)
+  mutate(newh1bs = AssetsTotal + 1)
 
 # Predict probabilities using the updated dataset
 new_fitted_probabilities &lt;- predict(model, newdata  = new_data_asset, type = &quot;response&quot;)
@@ -2054,25 +2147,20 @@ summary_2</code></pre>
 ##  3rd Qu.:1.0000   3rd Qu.:  1.000   3rd Qu.:  38830   2016   : 292  
 ##  Max.   :1.0000   Max.   :547.000   Max.   :3386071   2010   : 291  
 ##                                                       (Other):1392  
-##  original_prob       new_prob        change_in_prob    
-##  Min.   :0.8775   Min.   :0.000000   Min.   :-0.98723  
-##  1st Qu.:0.9330   1st Qu.:0.004826   1st Qu.:-0.92692  
-##  Median :0.9407   Median :0.748939   Median :-0.19803  
-##  Mean   :0.9561   Mean   :0.541390   Mean   :-0.41475  
-##  3rd Qu.:0.9849   3rd Qu.:0.964507   3rd Qu.:-0.01332  
-##  Max.   :1.0000   Max.   :1.000000   Max.   : 0.06504  
+##  original_prob       new_prob        change_in_prob     
+##  Min.   :0.8775   Min.   :0.000000   Min.   :-0.987233  
+##  1st Qu.:0.9330   1st Qu.:0.005273   1st Qu.:-0.926717  
+##  Median :0.9407   Median :0.766515   Median :-0.181542  
+##  Mean   :0.9561   Mean   :0.547316   Mean   :-0.408822  
+##  3rd Qu.:0.9849   3rd Qu.:0.967718   3rd Qu.:-0.008794  
+##  Max.   :1.0000   Max.   :1.000000   Max.   : 0.065037  
 ## </code></pre>
 <pre class="r"><code># Extract and format model results
 library(broom)</code></pre>
 <pre><code>## Warning: package &#39;broom&#39; was built under R version 4.3.3</code></pre>
-<pre class="r"><code>library(kableExtra)</code></pre>
-<pre><code>## Warning: package &#39;kableExtra&#39; was built under R version 4.3.3</code></pre>
-<pre><code>## 
-## Attaching package: &#39;kableExtra&#39;</code></pre>
-<pre><code>## The following object is masked from &#39;package:dplyr&#39;:
-## 
-##     group_rows</code></pre>
-<pre class="r"><code>results_table &lt;- tidy(model) %&gt;%
+<pre class="r"><code>library(kableExtra)
+
+results_table &lt;- tidy(model) %&gt;%
   mutate(significance = ifelse(p.value &lt; 0.05, &quot;*&quot;, &quot;&quot;)) %&gt;%
   select(term, estimate, std.error, p.value, significance)
 

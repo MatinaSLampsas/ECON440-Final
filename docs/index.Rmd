@@ -45,7 +45,7 @@ data <- data %>%
 # Filter for finance industry
 finance_data <- data %>%
   filter(industry_group == "52",
-         DataYearFiscal != "2021")
+         DataYearFiscal != "2021") 
 
 ```
 
@@ -53,39 +53,55 @@ finance_data <- data %>%
 ```{r}
 library(dplyr)
 library(knitr)
+library(kableExtra)
 
-# Select variables of interest for the summary table
-summary_table <- finance_data %>%
-  summarize(
-    Median_A_MEAN = median(A_MEAN, na.rm = TRUE),
-    Mean_A_MEAN = mean(A_MEAN, na.rm = TRUE),
-    Max_A_MEAN = max(A_MEAN, na.rm = TRUE),
-    Min_A_MEAN = min(A_MEAN, na.rm = TRUE),
-    
-    Median_newh1bs = median(newh1bs, na.rm = TRUE),
-    Mean_newh1bs = mean(newh1bs, na.rm = TRUE),
-    Max_newh1bs = max(newh1bs, na.rm = TRUE),
-    Min_newh1bs = min(newh1bs, na.rm = TRUE),
-    
-    Median_AssetsTotal = median(AssetsTotal, na.rm = TRUE),
-    Mean_AssetsTotal = mean(AssetsTotal, na.rm = TRUE),
-    Max_AssetsTotal = max(AssetsTotal, na.rm = TRUE),
-    Min_AssetsTotal = min(AssetsTotal, na.rm = TRUE),
-    
-    Median_Employees = median(Employees, na.rm = TRUE),
-    Mean_Employees = mean(Employees, na.rm = TRUE),
-    Max_Employees = max(Employees, na.rm = TRUE),
-    Min_Employees = min(Employees, na.rm = TRUE)
-  )
+finance_data_table <- finance_data %>% 
+  select(A_MEAN, newh1bs, AssetsTotal)
 
-# Display the table
+# Calculate summary statistics and transpose the result
+summary_table <- data.frame(
+  Median = sapply(finance_data_table, median, na.rm = TRUE),
+  Mean = sapply(finance_data_table, mean, na.rm = TRUE),
+  Max = sapply(finance_data_table, max, na.rm = TRUE),
+  Min = sapply(finance_data_table, min, na.rm = TRUE)
+)
 
-summary_table
-# 
-# kable(summary_table, caption = "Summary Statistics for Key Variables") %>% 
+# Transpose the summary table so that statistics are rows and variables are columns
+summary_table <- t(summary_table)
+
+# Convert the transposed summary table to a data frame
+summary_table <- as.data.frame(summary_table)
+
+# Add a row for the summary statistic labels
+summary_table$Statistic <- rownames(summary_table)
+rownames(summary_table) <- NULL
+
+# Reorder columns to put "Statistic" first
+summary_table <- summary_table[, c("Statistic", names(finance_data_table))]
+
+# Print the summary table
+print(summary_table)
+
+# summary_table %>%
+#   kable("html", caption = "Summary Statistics for Selected Finance Data Variables", escape = FALSE) %>%
 #   kable_classic(full_width = FALSE, html_font = "Cambria") %>%
-#   row_spec(0, bold = TRUE, background = "lightblue") 
+#   row_spec(0, bold = TRUE, background = "lightblue", hline_after = TRUE) %>% 
+#   row_spec(1:4, hline_after = TRUE)
+
+# Use kableExtra to create a nicely formatted HTML or LaTeX table with a shorter caption
+summary_table %>%
+  mutate(Statistic = ifelse(Statistic %in% c("Median", "Mean", "Max", "Min"), 
+                            paste0("<b>", Statistic, "</b>"), 
+                            Statistic)) %>%  # Bold the Statistic labels using LaTeX or HTML syntax
+  kable("html", caption = "Summary Stats for Variables in Model", escape = FALSE) %>%
+  kable_classic(full_width = FALSE, html_font = "Cambria") %>%
+  row_spec(0, bold = TRUE, background = "lightblue") %>%  # Format the header row
+  row_spec(1:nrow(summary_table), hline_after = TRUE)      
 ```
+
+
+
+
 # Old graphs
 ```{r}
 # Barplot: Proportion of high-wage firms over time
@@ -214,7 +230,7 @@ summary_1
 ```{r}
 # Create a new dataset with `new_h1b` increased by 1
 new_data_asset <- finance_data_clean %>% 
-  mutate(newh1bs = AssetsTotal + 100)
+  mutate(newh1bs = AssetsTotal + 1)
 
 # Predict probabilities using the updated dataset
 new_fitted_probabilities <- predict(model, newdata  = new_data_asset, type = "response")
