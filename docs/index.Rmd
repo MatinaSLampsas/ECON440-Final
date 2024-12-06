@@ -211,12 +211,11 @@ finance_data <- finance_data %>%
 finance_data_clean <- na.omit(finance_data)
 
 # Fit the Binary Logit Model
-model <- glm(high_wage ~ newh1bs + AssetsTotal + newh1bs:AssetsTotal + DataYearFiscal,
+model <- glm(high_wage ~ newh1bs + AssetsTotal + DataYearFiscal,
              data = finance_data_clean, family = binomial)
 
 # Summarize model results
 summary(model)
-
 
 ## Look at fitted choice probabilities
 fitted(model, type = 'probabilities') %>% 
