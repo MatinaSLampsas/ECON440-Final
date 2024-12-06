@@ -257,6 +257,31 @@ model_summary %>%
   row_spec(0, bold = TRUE, background = "lightblue")
 ```
 
+```{r}
+
+# Fit the Binary Logit Model
+model_2 <- glm(high_wage ~ newh1bs + DataYearFiscal,
+             data = finance_data_clean, family = binomial)
+
+# Summarize model results
+summary(model_2)
+# Extract the summary into a data frame
+model_summary_2 <- tidy(model_2) %>%
+  mutate(Signif = case_when(
+    p.value < 0.001 ~ "***",
+    p.value < 0.01 ~ "**",
+    p.value < 0.05 ~ "*",
+    p.value < 0.1 ~ ".",
+    TRUE ~ ""
+  ))
+# Creating the table using kable and kableExtra
+model_summary_2 %>%
+  kable("html", caption = "Summary of Binary Logit Regression Model - DataYearFiscal Removed ") %>%
+  kable_classic(full_width = FALSE, html_font = "Cambria") %>%
+  add_header_above(c(" " = 1, "Model Coefficients" = 5)) %>%
+  row_spec(0, bold = TRUE, background = "lightblue")
+```
+
 
 ```{r}
 ## Look at fitted choice probabilities
@@ -288,9 +313,6 @@ comparison <- comparison %>%
 summary_1 <- summary(comparison)
 summary_1
 #summary_1 <- cbind(Statistic = rownames(summary_1), summary_1)
-```
-
-```{r}
 summary_1 %>%
   kable("html", caption = "Change in Probability after increase in new_h1bs") %>%
   kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"),
@@ -298,9 +320,9 @@ summary_1 %>%
                 position = "left") %>%
   kable_classic(full_width = FALSE, html_font = "Cambria") %>%
   row_spec(0, bold = TRUE, background = "lightblue")
-
-
 ```
+
+
 
 
 
@@ -309,10 +331,10 @@ summary_1 %>%
 ```{r}
 # Create a new dataset with `new_h1b` increased by 1
 new_data_asset <- finance_data_clean %>% 
-  mutate(newh1bs = AssetsTotal + 1)
+  mutate(AssetsTotal = AssetsTotal + 1)
 
 # Predict probabilities using the updated dataset
-new_fitted_probabilities <- predict(model, newdata  = new_data_asset, type = "response")
+new_fitted_probabilities <- predict(model, new_data_asset, type = "response")
 
 # Compare old and new probabilities
 comparison_2 <- finance_data_clean %>%
