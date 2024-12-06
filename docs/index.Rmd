@@ -225,6 +225,40 @@ fitted(model, type = 'probabilities') %>%
 ```
 
 ```{r}
+library(broom)
+library(kableExtra)
+
+# Extract the summary into a data frame
+model_summary <- tidy(model) %>%
+  mutate(Signif = case_when(
+    p.value < 0.001 ~ "***",
+    p.value < 0.01 ~ "**",
+    p.value < 0.05 ~ "*",
+    p.value < 0.1 ~ ".",
+    TRUE ~ ""
+  ))
+
+# Creating the table using kable and kableExtra
+model_summary %>%
+  kable("html", caption = "Summary of Logistic Regression Model") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F) %>%
+  add_header_above(c(" " = 1, "Model Coefficients" = 5)) %>%
+  column_spec(1, bold = T) %>%
+  row_spec(0, bold = T, color = "white", background = "black")
+
+```
+
+```{r}
+# Creating the table using kable and kableExtra
+model_summary %>%
+  kable("html", caption = "Summary of Binary Logit Regression Model") %>%
+  kable_classic(full_width = FALSE, html_font = "Cambria") %>%
+  add_header_above(c(" " = 1, "Model Coefficients" = 5)) %>%
+  row_spec(0, bold = TRUE, background = "lightblue")
+```
+
+
+```{r}
 ## Look at fitted choice probabilities
 fitted_probabilities <- fitted(model, type = 'probabilities') 
 
@@ -248,19 +282,28 @@ comparison <- finance_data_clean %>%
          change_in_prob = new_prob - original_prob)
 
 # Display the first few rows of the comparison
+comparison <- comparison %>% 
+  select(original_prob, new_prob, change_in_prob)
+
 summary_1 <- summary(comparison)
 summary_1
 #summary_1 <- cbind(Statistic = rownames(summary_1), summary_1)
 ```
 
 ```{r}
-# summary_1 %>%
-#   kable("html", caption = "Summary Statistics of Finance Dataset") %>%
-#   kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"),
-#                 full_width = FALSE,
-#                 position = "left") %>% 
-#   row_spec(0, bold = TRUE, background = "lightblue") 
+summary_1 %>%
+  kable("html", caption = "Change in Probability after increase in new_h1bs") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"),
+                full_width = FALSE,
+                position = "left") %>%
+  kable_classic(full_width = FALSE, html_font = "Cambria") %>%
+  row_spec(0, bold = TRUE, background = "lightblue")
+
+
 ```
+
+
+
 
 
 ```{r}
@@ -276,12 +319,25 @@ comparison_2 <- finance_data_clean %>%
   mutate(original_prob = fitted_probabilities,
          new_prob = new_fitted_probabilities,
          change_in_prob = new_prob - original_prob)
+# Display the first few rows of the comparison
+comparison_2 <- comparison_2 %>% 
+  select(original_prob, new_prob, change_in_prob)
 
 # Display the first few rows of the comparison
 summary_2 <- summary(comparison_2)
 summary_2
 ```
 
+```{r}
+summary_2 %>%
+  kable("html", caption = "Change in Probability after increase in AssetsTotal") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"),
+                full_width = FALSE,
+                position = "left") %>%
+  kable_classic(full_width = FALSE, html_font = "Cambria") %>%
+  row_spec(0, bold = TRUE, background = "lightblue")
+
+```
 
 
 ```{r}
@@ -300,6 +356,9 @@ kable(results_table, caption = "Binary Logit Model Results") %>%
   # add_header_above(c(" " = 1, "Average Wage (A_MEAN)" = 4, "New H-1B Workers" = 4)) %>%
   # column_spec(1, bold = TRUE)
 ```
+
+
+
 
 # Introducing the data - Graphs
 ```{r}
